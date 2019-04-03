@@ -1,0 +1,6 @@
+[filebeat]
+plan_path = "filebeat"
+[journalbeat]
+plan_path = "journalbeat"
+[metricbeat]
+plan_path = "metricbeat"
