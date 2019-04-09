@@ -2,5 +2,7 @@
 plan_path = "filebeat"
 [journalbeat]
 plan_path = "journalbeat"
+[kibana]
+plan_path = "kibana"
 [metricbeat]
 plan_path = "metricbeat"
