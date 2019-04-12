@@ -1,0 +1,14 @@
+#!/bin/sh
+
+exec 2>&1
+
+mkdir -p {{pkg.svc_static_path}}
+
+# Move directories that ship in the package into place
+# etc tasks ui_framework test -- are these important?
+# they aren't in the 6.5.4 distro...
+for dir in config node_modules package.json src bin webpackShims plugins do
+  rsync -a $(hab pkg path open-distro/kibana)/$dir {{pkg.svc_static_path}}/
+done
+
+mkdir -p {{pkg.svc_var_path}}/run
