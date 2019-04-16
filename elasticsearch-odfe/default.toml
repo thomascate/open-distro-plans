@@ -43,15 +43,21 @@
     [es_yaml.opendistro_security.ssl]
       [es_yaml.opendistro_security.ssl.http]
         enabled = true
-        pemcert_filepath = "odfe-node.pem"
-        pemkey_filepath = "odfe-node.key"
-        pemtrustedcas_filepath = "MyRootCA.key"
+        pemcert_filepath = "certificates/odfe-node.pem"
+        pemkey_filepath = "certificates/odfe-node.key"
+        pemtrustedcas_filepath = "certificates/MyRootCA.pem"
       [es_yaml.opendistro_security.ssl.transport]
         enabled = true
-        pemcert_filepath = "odfe-node.pem"
-        pemkey_filepath = "odfe-node.key"
-        pemtrustedcas_filepath = "MyRootCA.key"
+        pemcert_filepath = "certificates/odfe-node.pem"
+        pemkey_filepath = "certificates/odfe-node.key"
+        pemtrustedcas_filepath = "certificates/MyRootCA.pem"
         enforce_hostname_verification = false
+
+# Fill these in in your user.toml to override automatic SSL Cert generation
+#[opendistro_ssl]
+#cert   = ""
+#key    = ""
+#rootCA = ""
 
 # Runtime settings for jvm.options and the systemd service
 [runtime]
