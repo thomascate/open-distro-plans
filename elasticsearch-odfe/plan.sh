@@ -19,6 +19,7 @@ pkg_build_deps=(
 )
 pkg_deps=( 
   core/coreutils
+  core/curl
   core/glibc
   chef/mlsa
   core/openjdk11
@@ -83,6 +84,8 @@ do_install() {
   install -vDm644 $CACHE_PATH/elasticsearch-$ELASTICSEARCH_VERSION/NOTICE.txt "${pkg_prefix}/NOTICE.txt"
 
   cp -a $CACHE_PATH/elasticsearch-$ELASTICSEARCH_VERSION/* "${pkg_prefix}/"
+  #cp -a $CACHE_PATH/security/tools/* "${pkg_prefix}/bin/"
+  #attach
 
   # Delete unused binaries to save space
   #rm "${pkg_prefix}/es/bin/"*.bat "${pkg_prefix}/es/bin/"*.exe

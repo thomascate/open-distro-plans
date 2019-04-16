@@ -1,0 +1,25 @@
+#!/bin/bash
+CURL_STATUS="1"
+BREAKER=0
+while [ $CURL_STATUS != "0" ]; do
+  sleep 5
+  CURL_OUTPUT="$({{pkgPathFor "core/curl"}}/bin/curl -sk https://{{svc.me.sys.ip}}:{{svc.me.cfg.http-port}})"
+  CURL_STATUS=$?
+  if [[ $CURL_OUTPUT =~ .*Security\ not\ initialized.* ]]; then
+    echo "inserting default credentials into odfe"
+    set -e
+    {{pkg.path}}/plugins/opendistro_security/tools/securityadmin.sh -h {{svc.me.sys.ip}} -p {{svc.me.cfg.transport-port}} -cacert {{pkg.svc_path}}/config/MyRootCA.pem -cert {{pkg.svc_path}}/config/odfe-node.pem -key {{pkg.svc_path}}/config/odfe-node.key -nhnv -icl -cd {{pkg.svc_path}}/config/securityconfig
+    echo "Inserted default securityconfig into odfe"
+    exit 0
+  elif [ "$CURL_OUTPUT" == 'Unauthorized' ]; then
+    echo "Authentication appears to already be setup, giving up"
+    exit 0
+  fi
+  if [[ $BREAKER -gt 60 ]]; then
+    echo "After 5 minutes Elasticsearch never responded to requests to insert data, giving up"
+    exit 1
+  fi
+  BREAKER=$((BREAKER+1))
+done
+
+exit 0
