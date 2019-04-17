@@ -1,3 +1,0 @@
-# Clean up any elasticsearch temp dirs remaining from previous attempts to start.
-# 
-rmdir /tmp/elasticsearch.*
