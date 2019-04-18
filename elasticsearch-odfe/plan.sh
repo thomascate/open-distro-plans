@@ -60,22 +60,23 @@ do_build() {
   for component in "${ODFE_COMPONENTS[@]}"; do
     rm -rf $CACHE_PATH/$component
     git clone https://github.com/opendistro-for-elasticsearch/$component.git $CACHE_PATH/$component
-    pushd $CACHE_PATH/$component >/dev/null
+    pushd $CACHE_PATH/$component >/dev/null || exit 1
     git checkout tags/v$pkg_version
     mvn compile -Dmaven.test.skip=true
     mvn package -Dmaven.test.skip=true
     mvn install -Dmaven.test.skip=true
+    popd || exit 1
   done
 
   #Build the opendistro_security plugin itself
   rm -rf $CACHE_PATH/security
   git clone https://github.com/opendistro-for-elasticsearch/security.git $CACHE_PATH/security
-  pushd $CACHE_PATH/security >/dev/null
+  pushd $CACHE_PATH/security >/dev/null || exit 1
   git checkout tags/v$pkg_version
   mvn compile -Dmaven.test.skip=true -P advanced
   mvn package -Dmaven.test.skip=true -P advanced
   mvn install -Dmaven.test.skip=true -P advanced
-
+  popd || exit 1
 }
 
 do_install() {
@@ -84,18 +85,10 @@ do_install() {
   install -vDm644 $CACHE_PATH/elasticsearch-$ELASTICSEARCH_VERSION/NOTICE.txt "${pkg_prefix}/NOTICE.txt"
 
   cp -a $CACHE_PATH/elasticsearch-$ELASTICSEARCH_VERSION/* "${pkg_prefix}/"
-  #cp -a $CACHE_PATH/security/tools/* "${pkg_prefix}/bin/"
-  #attach
 
   # Delete unused binaries to save space
-  #rm "${pkg_prefix}/es/bin/"*.bat "${pkg_prefix}/es/bin/"*.exe
-
+  rm "${pkg_prefix}/bin/"*.bat "${pkg_prefix}/bin/"*.exe
+  
   mkdir -p $pkg_prefix/plugins/opendistro_security
   unzip $CACHE_PATH/security/target/releases/opendistro_security-$pkg_version.zip -d $pkg_prefix/plugins/opendistro_security
-  chown -R hab:hab $pkg_prefix/plugins/opendistro_security
-
-}
-
-do_end() {
-  return 0
 }
