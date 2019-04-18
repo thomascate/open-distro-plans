@@ -3,7 +3,7 @@ CURL_STATUS="1"
 BREAKER=0
 while [ $CURL_STATUS != "0" ]; do
   sleep 5
-  CURL_OUTPUT="$({{pkgPathFor "core/curl"}}/bin/curl -sk https://{{svc.me.sys.ip}}:{{svc.me.cfg.http-port}})"
+  CURL_OUTPUT="$(curl -sk https://{{svc.me.sys.ip}}:{{svc.me.cfg.http-port}})"
   CURL_STATUS=$?
   if [[ $CURL_OUTPUT =~ .*Security\ not\ initialized.* ]]; then
     echo "inserting default credentials into odfe"
