@@ -46,21 +46,28 @@ ODFE_DEPENDENCIES=(
   'security-advanced-modules'
   )
 
+do_download() {
+  wget -O $HAB_CACHE_SRC_PATH/elasticsearch-oss-$ELASTICSEARCH_VERSION.tar.gz $ELASTICSEARCH_PKG_URL
+  for component in "${ODFE_DEPENDENCIES[@]}"; do
+    rm -rf $HAB_CACHE_SRC_PATH/$component
+    git clone https://github.com/opendistro-for-elasticsearch/$component.git $HAB_CACHE_SRC_PATH/$component
+  done
+
+  rm -rf $HAB_CACHE_SRC_PATH/security
+  git clone https://github.com/opendistro-for-elasticsearch/security.git $HAB_CACHE_SRC_PATH/security
+}
+
+do_unpack() {
+  tar -xzf $HAB_CACHE_SRC_PATH/elasticsearch-oss-$ELASTICSEARCH_VERSION.tar.gz -C $HAB_CACHE_SRC_PATH/
+}
 
 do_build() {
-  #rm -rf $CACHE_PATH/*
-  wget -O $CACHE_PATH/elasticsearch-oss-$ELASTICSEARCH_VERSION.tar.gz $ELASTICSEARCH_PKG_URL
-
-  tar -xzf $CACHE_PATH/elasticsearch-oss-$ELASTICSEARCH_VERSION.tar.gz -C $CACHE_PATH/
-
   JAVA_HOME="$(pkg_path_for core/openjdk11)"
   export JAVA_HOME
 
   #Build dep packages and put them in a local maven repo
-  for component in "${ODFE_COMPONENTS[@]}"; do
-    rm -rf $CACHE_PATH/$component
-    git clone https://github.com/opendistro-for-elasticsearch/$component.git $CACHE_PATH/$component
-    pushd $CACHE_PATH/$component >/dev/null || exit 1
+  for component in "${ODFE_DEPENDENCIES[@]}"; do
+    pushd $HAB_CACHE_SRC_PATH/$component >/dev/null || exit 1
     git checkout tags/v$pkg_version
     mvn compile -Dmaven.test.skip=true
     mvn package -Dmaven.test.skip=true
@@ -69,9 +76,7 @@ do_build() {
   done
 
   #Build the opendistro_security plugin itself
-  rm -rf $CACHE_PATH/security
-  git clone https://github.com/opendistro-for-elasticsearch/security.git $CACHE_PATH/security
-  pushd $CACHE_PATH/security >/dev/null || exit 1
+  pushd $HAB_CACHE_SRC_PATH/security >/dev/null || exit 1
   git checkout tags/v$pkg_version
   mvn compile -Dmaven.test.skip=true -P advanced
   mvn package -Dmaven.test.skip=true -P advanced
@@ -80,15 +85,15 @@ do_build() {
 }
 
 do_install() {
-  install -vDm644 $CACHE_PATH/elasticsearch-$ELASTICSEARCH_VERSION/README.textile "${pkg_prefix}/README.textile"
-  install -vDm644 $CACHE_PATH/elasticsearch-$ELASTICSEARCH_VERSION/LICENSE.txt "${pkg_prefix}/LICENSE.txt"
-  install -vDm644 $CACHE_PATH/elasticsearch-$ELASTICSEARCH_VERSION/NOTICE.txt "${pkg_prefix}/NOTICE.txt"
+  install -vDm644 $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/README.textile "${pkg_prefix}/README.textile"
+  install -vDm644 $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/LICENSE.txt "${pkg_prefix}/LICENSE.txt"
+  install -vDm644 $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/NOTICE.txt "${pkg_prefix}/NOTICE.txt"
 
-  cp -a $CACHE_PATH/elasticsearch-$ELASTICSEARCH_VERSION/* "${pkg_prefix}/"
+  cp -a $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/* "${pkg_prefix}/"
 
   # Delete unused binaries to save space
   rm "${pkg_prefix}/bin/"*.bat "${pkg_prefix}/bin/"*.exe
-  
+
   mkdir -p $pkg_prefix/plugins/opendistro_security
-  unzip $CACHE_PATH/security/target/releases/opendistro_security-$pkg_version.zip -d $pkg_prefix/plugins/opendistro_security
+  unzip $HAB_CACHE_SRC_PATH/security/target/releases/opendistro_security-$pkg_version.zip -d $pkg_prefix/plugins/opendistro_security
 }
