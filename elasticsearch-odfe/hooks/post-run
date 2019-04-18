@@ -8,7 +8,7 @@ while [ $CURL_STATUS != "0" ]; do
   if [[ $CURL_OUTPUT =~ .*Security\ not\ initialized.* ]]; then
     echo "inserting default credentials into odfe"
     set -e
-    {{pkg.path}}/plugins/opendistro_security/tools/securityadmin.sh -h {{svc.me.sys.ip}} -p {{svc.me.cfg.transport-port}} -cacert {{pkg.svc_path}}/config/MyRootCA.pem -cert {{pkg.svc_path}}/config/odfe-node.pem -key {{pkg.svc_path}}/config/odfe-node.key -nhnv -icl -cd {{pkg.svc_path}}/config/securityconfig
+    {{pkg.path}}/plugins/opendistro_security/tools/securityadmin.sh -h {{svc.me.sys.ip}} -p {{svc.me.cfg.transport-port}} -cacert {{pkg.svc_path}}/config/certificates/MyRootCA.pem -cert {{pkg.svc_path}}/config/certificates/odfe-admin.pem -key {{pkg.svc_path}}/config/certificates/odfe-admin.key -nhnv -icl -cd {{pkg.svc_path}}/config/securityconfig
     echo "Inserted default securityconfig into odfe"
     exit 0
   elif [ "$CURL_OUTPUT" == 'Unauthorized' ]; then

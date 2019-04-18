@@ -37,14 +37,15 @@
 
   [es_yaml.opendistro_security]
     allow_unsafe_democertificates = "true"
-# This is the dn we use for our generated certificates. Override if you're generating your own
+# These are the dns we use for our generated certificates. Override if you're generating your own
+    nodes_dn = [ "CN=chefnode,O=Chef Software Inc,L=Seattle,ST=Washington,C=US" ]
     [es_yaml.opendistro_security.authcz]
       admin_dn = [ "CN=chefadmin,O=Chef Software Inc,L=Seattle,ST=Washington,C=US" ]
     [es_yaml.opendistro_security.ssl]
       [es_yaml.opendistro_security.ssl.http]
         enabled = true
-        pemcert_filepath = "certificates/odfe-node.pem"
-        pemkey_filepath = "certificates/odfe-node.key"
+        pemcert_filepath = "certificates/odfe-admin.pem"
+        pemkey_filepath = "certificates/odfe-admin.key"
         pemtrustedcas_filepath = "certificates/MyRootCA.pem"
       [es_yaml.opendistro_security.ssl.transport]
         enabled = true
@@ -55,9 +56,17 @@
 
 # Fill these in in your user.toml to override automatic SSL Cert generation
 #[opendistro_ssl]
-#cert   = ""
-#key    = ""
+
+# root pem cert that signed the two cert/key pairs below
 #rootCA = ""
+
+# Certificate used for admin actions against https://9200
+#admin_cert   = ""
+#admin_key    = ""
+
+# Certificate used for intracluster ssl on port 9300, also used by securityadmin.sh
+#node_cert    = ""
+#node_key     = ""
 
 # Runtime settings for jvm.options and the systemd service
 [runtime]
