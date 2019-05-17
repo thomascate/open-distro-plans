@@ -85,9 +85,9 @@ do_build() {
 }
 
 do_install() {
-  install -vDm644 $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/README.textile "${pkg_prefix}/README.textile"
-  install -vDm644 $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/LICENSE.txt "${pkg_prefix}/LICENSE.txt"
-  install -vDm644 $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/NOTICE.txt "${pkg_prefix}/NOTICE.txt"
+  install -vDm644 $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION/README.textile "${pkg_prefix}/README.textile"
+  install -vDm644 $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION/LICENSE.txt "${pkg_prefix}/LICENSE.txt"
+  install -vDm644 $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION/NOTICE.txt "${pkg_prefix}/NOTICE.txt"
 
   cp -a $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/* "${pkg_prefix}/"
 
