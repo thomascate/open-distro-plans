@@ -10,7 +10,7 @@ mkdir -p "{{pkg.svc_var_path}}/data"
 {{#unless cfg.ssl_key}}
   export RANDFILE={{pkg.svc_config_path}}/certificates/.rnd
   mkdir -p {{pkg.svc_config_path/certificates}}
-  
+
   #First, create a private key for the CA:
   openssl genrsa -out {{pkg.svc_config_path}}/certificates/CA.key 2048
 
