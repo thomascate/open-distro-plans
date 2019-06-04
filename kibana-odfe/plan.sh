@@ -71,17 +71,9 @@ do_install() {
 
   cp -a $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64/* "${pkg_prefix}/"
 
-  mkdir -p $pkg_prefix/plugins/opendistro_security_kibana_plugin
-  unzip -q $HAB_CACHE_SRC_PATH/security-kibana-plugin/target/releases/opendistro_security_kibana_plugin-$pkg_version.zip -d $pkg_prefix/plugins/opendistro_security_kibana_plugin
+  unzip -q $HAB_CACHE_SRC_PATH/security-kibana-plugin/target/releases/opendistro_security_kibana_plugin-$pkg_version.zip -d $HAB_CACHE_SRC_PATH
+  mv $HAB_CACHE_SRC_PATH/kibana/security-kibana-plugin $pkg_prefix/plugins/
 }
-
-
-#do_install() {
-#  cp -r "${HAB_CACHE_SRC_PATH}/${pkg_name}-${pkg_version}-linux-x86_64/"* "${pkg_prefix}/"
-#  # Delete the /config directory created by Kibana installer; habitat lays down
-#  # /config/kibana.yml
-#rm -rv "${pkg_prefix}/config/"
-#}
 
 do_strip() {
   return 0
