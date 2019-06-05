@@ -1,0 +1,31 @@
+
+[kibana_yaml]
+  [kibana_yaml.server]
+    port = "5601"
+    host = "0.0.0.0"
+
+    [kibana_yaml.server.ssl]
+      enabled = true
+      certificate =  "/hab/svc/kibana-odfe/config/certificates/kibana.pem"
+      key = "/hab/svc/kibana-odfe/config/certificates/kibana.key"
+
+  [kibana_yaml.elasticsearch]
+    url = "https://localhost:9200"
+    username = "admin"
+    password = "admin"
+    [kibana_yaml.elasticsearch.ssl]
+      certificateAuthorities = "/hab/svc/kibana-odfe/config/certificates/CA.pem"
+
+  [kibana_yaml.path]
+    data = "/hab/svc/kibana-odfe/data/"
+
+  [kibana_yaml.pid]
+    file = "/hab/svc/kibana-odfe/var/kibana.pid"
+
+# Certificate used for kibana interface
+#ssl_cert    = ""
+#ssl_key     = ""
+
+# CA of Elasticsearch's SSL certificate, can be used if you need to trust
+# self-signed certificates
+#elasticsearch_ca = ""
