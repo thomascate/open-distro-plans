@@ -55,6 +55,8 @@ do_download() {
 
   rm -rf $HAB_CACHE_SRC_PATH/security
   git clone https://github.com/opendistro-for-elasticsearch/security.git $HAB_CACHE_SRC_PATH/security
+
+  download_file "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-s3/repository-s3-${ELASTICSEARCH_VERSION}.zip" "repository-s3.zip"
 }
 
 do_unpack() {
@@ -96,4 +98,7 @@ do_install() {
 
   mkdir -p $pkg_prefix/plugins/opendistro_security
   unzip $HAB_CACHE_SRC_PATH/security/target/releases/opendistro_security-$pkg_version.zip -d $pkg_prefix/plugins/opendistro_security
+
+  mkdir -p $pkg_prefix/plugins/repository-s3
+  unzip $HAB_CACHE_SRC_PATH/repository-s3.zip -d $pkg_prefix/plugins/repository-s3
 }
