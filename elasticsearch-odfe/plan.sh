@@ -17,14 +17,13 @@ pkg_build_deps=(
   core/openssl
   core/zip
 )
-pkg_deps=( 
+pkg_deps=(
   core/coreutils
   core/curl
   core/glibc
   chef/mlsa
   core/openjdk11
   core/procps-ng
-  core/ruby
   core/wget
   core/zlib
 )
