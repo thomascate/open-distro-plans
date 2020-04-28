@@ -19,7 +19,7 @@ pkg_build_deps=(
   core/openssl
   core/zip
 )
-pkg_deps=(core/node8/8.14.0 core/rsync) # Kibana is only supported if it runs on the version of node that ships with the release
+pkg_deps=(core/node8 core/rsync) # Kibana is only supported if it runs on the version of node that ships with the release
 pkg_exports=(
   [port]=kibana_yaml.server.port
 )
