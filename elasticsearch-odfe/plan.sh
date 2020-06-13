@@ -1,6 +1,10 @@
 # This is the version that the current ODFE package depends on
 ELASTICSEARCH_VERSION="6.5.4"
 ELASTICSEARCH_PKG_URL="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-$ELASTICSEARCH_VERSION.tar.gz"
+ELASTICSEARCH_PLUGINS=(
+  repository-s3
+  repository-gcs
+)
 pkg_version=0.7.0.1
 pkg_name="elasticsearch-odfe"
 pkg_description="Open Distro for Elasticsearch plugins"
@@ -55,7 +59,9 @@ do_download() {
   rm -rf $HAB_CACHE_SRC_PATH/security
   git clone https://github.com/opendistro-for-elasticsearch/security.git $HAB_CACHE_SRC_PATH/security
 
-  download_file "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-s3/repository-s3-${ELASTICSEARCH_VERSION}.zip" "repository-s3.zip"
+  for plugin in ${ELASTICSEARCH_PLUGINS[@]}; do
+    download_file "https://artifacts.elastic.co/downloads/elasticsearch-plugins/${plugin}/${plugin}-${ELASTICSEARCH_VERSION}.zip" "${plugin}.zip"
+  done
 }
 
 do_unpack() {
@@ -97,7 +103,8 @@ do_install() {
 
   mkdir -p $pkg_prefix/plugins/opendistro_security
   unzip $HAB_CACHE_SRC_PATH/security/target/releases/opendistro_security-$pkg_version.zip -d $pkg_prefix/plugins/opendistro_security
-
-  mkdir -p $pkg_prefix/plugins/repository-s3
-  unzip $HAB_CACHE_SRC_PATH/repository-s3.zip -d $pkg_prefix/plugins/repository-s3
+  for plugin in ${ELASTICSEARCH_PLUGINS[@]}; do
+    mkdir -p $pkg_prefix/plugins/${plugin}
+    unzip $HAB_CACHE_SRC_PATH/${plugin}.zip -d $pkg_prefix/plugins/${plugin}
+  done
 }
