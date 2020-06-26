@@ -1,6 +1,6 @@
 pkg_name=journalbeat
 pkg_origin=open-distro
-pkg_version=6.5.4
+pkg_version=6.8.6
 pkg_maintainer="The Habitat Maintainers <humans@habitat.sh>"
 pkg_license=("Apache-2.0")
 pkg_deps=(core/glibc core/systemd)

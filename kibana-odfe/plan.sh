@@ -1,7 +1,7 @@
 pkg_name=kibana-odfe
-KIBANA_VERSION="6.5.4"
+KIBANA_VERSION="6.8.6"
 KIBANA_PKG_URL="https://artifacts.elastic.co/downloads/kibana/kibana-oss-$KIBANA_VERSION-linux-x86_64.tar.gz"
-pkg_version=0.7.0.1
+pkg_version=0.10.1.2
 pkg_origin=open-distro
 pkg_license=('Apache-2.0')
 pkg_maintainer="The Habitat Maintainers <humans@habitat.sh>"
@@ -19,7 +19,8 @@ pkg_build_deps=(
   core/openssl
   core/zip
 )
-pkg_deps=(core/node8/8.14.0 core/rsync) # Kibana is only supported if it runs on the version of node that ships with the release
+#pkg_deps=(core/node8/8.14.0 core/rsync) # Kibana is only supported if it runs on the version of node that ships with the release
+pkg_deps=(core/rsync) # Kibana is only supported if it runs on the version of node that ships with the release
 pkg_exports=(
   [port]=kibana_yaml.server.port
 )

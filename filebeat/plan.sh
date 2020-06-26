@@ -1,6 +1,6 @@
 pkg_name=filebeat
 pkg_origin=open-distro
-pkg_version=6.5.4
+pkg_version=6.8.6
 pkg_maintainer="The Habitat Maintainers <humans@habitat.sh>"
 pkg_license=("Apache-2.0")
 pkg_deps=(core/glibc)
@@ -24,7 +24,7 @@ do_download() {
   export GOPATH
   go get github.com/elastic/beats/filebeat
   pushd "${HAB_CACHE_SRC_PATH}/github.com/elastic/beats/filebeat" > /dev/null
-  git checkout "v${pkg_version}"
+  git checkout tags/v$pkg_version
   popd > /dev/null
 }
 
