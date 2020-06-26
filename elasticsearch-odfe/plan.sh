@@ -40,19 +40,8 @@ pkg_exports=(
 )
 pkg_exposes=(http-port transport-port)
 
-#ODFE_DEPENDENCIES=(
-#  'security-parent'
-#  'security-ssl'
-#  'security-advanced-modules'
-#  )
-
 do_download() {
   wget -O $HAB_CACHE_SRC_PATH/elasticsearch-oss-$ELASTICSEARCH_VERSION.tar.gz $ELASTICSEARCH_PKG_URL
-#  for component in "${ODFE_DEPENDENCIES[@]}"; do
-#    rm -rf $HAB_CACHE_SRC_PATH/$component
-#    git clone https://github.com/opendistro-for-elasticsearch/$component.git $HAB_CACHE_SRC_PATH/$component
-#  done
-
   rm -rf $HAB_CACHE_SRC_PATH/security
   git clone https://github.com/opendistro-for-elasticsearch/security.git $HAB_CACHE_SRC_PATH/security
 }
@@ -64,16 +53,6 @@ do_unpack() {
 do_build() {
   JAVA_HOME="$(pkg_path_for core/openjdk11)"
   export JAVA_HOME
-
-  #Build dep packages and put them in a local maven repo
-#  for component in "${ODFE_DEPENDENCIES[@]}"; do
-#    pushd $HAB_CACHE_SRC_PATH/$component >/dev/null || exit 1
-#    git checkout tags/v$pkg_version
-#    mvn compile -Dmaven.test.skip=true
-#    mvn package -Dmaven.test.skip=true
-#    mvn install -Dmaven.test.skip=true
-#    popd || exit 1
-#  done
 
   #Build the opendistro_security plugin itself
   pushd $HAB_CACHE_SRC_PATH/security >/dev/null || exit 1
