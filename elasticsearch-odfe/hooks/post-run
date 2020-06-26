@@ -5,7 +5,7 @@ while [ $CURL_STATUS != "0" ]; do
   sleep 5
   CURL_OUTPUT="$(curl -sk https://{{svc.me.sys.ip}}:{{svc.me.cfg.http-port}})"
   CURL_STATUS=$?
-  if [[ $CURL_OUTPUT =~ .*Security\ not\ initialized.* ]]; then
+  if [[ $CURL_OUTPUT =~ .*Open\ Distro\ not\ initialized.* ]]; then
     echo "inserting default credentials into odfe"
     set -e
     {{pkg.path}}/plugins/opendistro_security/tools/securityadmin.sh -h {{svc.me.sys.ip}} -p {{svc.me.cfg.transport-port}} -cacert {{pkg.svc_path}}/config/certificates/MyRootCA.pem -cert {{pkg.svc_path}}/config/certificates/odfe-admin.pem -key {{pkg.svc_path}}/config/certificates/odfe-admin.key -nhnv -icl -cd {{pkg.svc_path}}/config/securityconfig
