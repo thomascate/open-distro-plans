@@ -1,4 +1,14 @@
 #!/bin/bash
+
+exec 2>&1
+
+# TODO: Re-evaluate when hooks can run on their own thread
+# Sleeps in hooks that are not the run hook
+# are not a good practice because all hooks run in the Supervisor's
+# main thread. In the future, this may change.
+# See also: https://github.com/habitat-sh/habitat/issues/2364
+# Wait so elasticsearch can start
+
 CURL_STATUS="1"
 BREAKER=0
 while [ $CURL_STATUS != "0" ]; do

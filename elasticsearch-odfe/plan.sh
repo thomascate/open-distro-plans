@@ -50,14 +50,14 @@ ODFE_DEPENDENCIES=(
   )
 
 do_download() {
-  wget -O $HAB_CACHE_SRC_PATH/elasticsearch-oss-$ELASTICSEARCH_VERSION.tar.gz $ELASTICSEARCH_PKG_URL
+  wget -O "${HAB_CACHE_SRC_PATH}/elasticsearch-oss-${ELASTICSEARCH_VERSION}.tar.gz" "${ELASTICSEARCH_PKG_URL}"
   for component in "${ODFE_DEPENDENCIES[@]}"; do
-    rm -rf $HAB_CACHE_SRC_PATH/$component
-    git clone https://github.com/opendistro-for-elasticsearch/$component.git $HAB_CACHE_SRC_PATH/$component
+    rm -rf "${HAB_CACHE_SRC_PATH:?}/${component}"
+    git clone "https://github.com/opendistro-for-elasticsearch/${component}.git" "${HAB_CACHE_SRC_PATH}/${component}"
   done
 
-  rm -rf $HAB_CACHE_SRC_PATH/security
-  git clone https://github.com/opendistro-for-elasticsearch/security.git $HAB_CACHE_SRC_PATH/security
+  rm -rf ${HAB_CACHE_SRC_PATH}/security
+  git clone https://github.com/opendistro-for-elasticsearch/security.git ${HAB_CACHE_SRC_PATH}/security
 
   for plugin in ${ELASTICSEARCH_PLUGINS[@]}; do
     download_file "https://artifacts.elastic.co/downloads/elasticsearch-plugins/${plugin}/${plugin}-${ELASTICSEARCH_VERSION}.zip" "${plugin}.zip"
@@ -65,7 +65,7 @@ do_download() {
 }
 
 do_unpack() {
-  tar -xzf $HAB_CACHE_SRC_PATH/elasticsearch-oss-$ELASTICSEARCH_VERSION.tar.gz -C $HAB_CACHE_SRC_PATH/
+  tar -xzf "${HAB_CACHE_SRC_PATH}/elasticsearch-oss-${ELASTICSEARCH_VERSION}.tar.gz" -C "${HAB_CACHE_SRC_PATH}/"
 }
 
 do_build() {
@@ -74,8 +74,8 @@ do_build() {
 
   #Build dep packages and put them in a local maven repo
   for component in "${ODFE_DEPENDENCIES[@]}"; do
-    pushd $HAB_CACHE_SRC_PATH/$component >/dev/null || exit 1
-    git checkout tags/v$pkg_version
+    pushd "${HAB_CACHE_SRC_PATH}/${component}" >/dev/null || exit 1
+    git checkout tags/v${pkg_version}
     mvn compile -Dmaven.test.skip=true
     mvn package -Dmaven.test.skip=true
     mvn install -Dmaven.test.skip=true
@@ -83,8 +83,8 @@ do_build() {
   done
 
   #Build the opendistro_security plugin itself
-  pushd $HAB_CACHE_SRC_PATH/security >/dev/null || exit 1
-  git checkout tags/v$pkg_version
+  pushd "${HAB_CACHE_SRC_PATH}/security" >/dev/null || exit 1
+  git checkout tags/v${pkg_version}
   mvn compile -Dmaven.test.skip=true -P advanced
   mvn package -Dmaven.test.skip=true -P advanced
   mvn install -Dmaven.test.skip=true -P advanced
@@ -92,19 +92,19 @@ do_build() {
 }
 
 do_install() {
-  install -vDm644 $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/README.textile "${pkg_prefix}/README.textile"
-  install -vDm644 $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/LICENSE.txt "${pkg_prefix}/LICENSE.txt"
-  install -vDm644 $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/NOTICE.txt "${pkg_prefix}/NOTICE.txt"
+  install -vDm644 "${HAB_CACHE_SRC_PATH}/elasticsearch-${ELASTICSEARCH_VERSION}/README.textile" "${pkg_prefix}/README.textile"
+  install -vDm644 "${HAB_CACHE_SRC_PATH}/elasticsearch-${ELASTICSEARCH_VERSION}/LICENSE.txt" "${pkg_prefix}/LICENSE.txt"
+  install -vDm644 "${HAB_CACHE_SRC_PATH}/elasticsearch-${ELASTICSEARCH_VERSION}/NOTICE.txt" "${pkg_prefix}/NOTICE.txt"
 
-  cp -a $HAB_CACHE_SRC_PATH/elasticsearch-$ELASTICSEARCH_VERSION/* "${pkg_prefix}/"
+  cp -a "${HAB_CACHE_SRC_PATH}/elasticsearch-${ELASTICSEARCH_VERSION}/"* "${pkg_prefix}/"
 
   # Delete unused binaries to save space
   rm "${pkg_prefix}/bin/"*.bat "${pkg_prefix}/bin/"*.exe
 
-  mkdir -p $pkg_prefix/plugins/opendistro_security
-  unzip $HAB_CACHE_SRC_PATH/security/target/releases/opendistro_security-$pkg_version.zip -d $pkg_prefix/plugins/opendistro_security
+  mkdir -p "${pkg_prefix}/plugins/opendistro_security"
+  unzip "${HAB_CACHE_SRC_PATH}/security/target/releases/opendistro_security-$pkg_version.zip" -d "${pkg_prefix}/plugins/opendistro_security"
   for plugin in ${ELASTICSEARCH_PLUGINS[@]}; do
-    mkdir -p $pkg_prefix/plugins/${plugin}
-    unzip $HAB_CACHE_SRC_PATH/${plugin}.zip -d $pkg_prefix/plugins/${plugin}
+    mkdir -p "${pkg_prefix}/plugins/${plugin}"
+    unzip "${HAB_CACHE_SRC_PATH}/${plugin}.zip" -d "${pkg_prefix}/plugins/${plugin}"
   done
 }
