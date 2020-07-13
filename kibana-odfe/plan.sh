@@ -1,7 +1,9 @@
 pkg_name=kibana-odfe
 KIBANA_VERSION="6.8.6"
 KIBANA_PKG_URL="https://artifacts.elastic.co/downloads/kibana/kibana-oss-$KIBANA_VERSION-linux-x86_64.tar.gz"
-pkg_version=0.10.1.2
+pkg_version="0.10.0.4"
+opendistro_version="0.10.0.6"
+nvm_version="0.35.3"
 pkg_origin=open-distro
 pkg_license=('Apache-2.0')
 pkg_maintainer="The Habitat Maintainers <humans@habitat.sh>"
@@ -13,6 +15,7 @@ pkg_build_deps=(
   core/coreutils
   core/git
   core/gnupg
+  core/jq-static
   core/maven
   core/node
   core/openjdk11
@@ -31,9 +34,12 @@ pkg_binds_optional=(
 pkg_bin_dirs=(bin)
 
 do_download() {
-  wget -O $HAB_CACHE_SRC_PATH/kibana-oss-$KIBANA_VERSION.tar.gz $KIBANA_PKG_URL
+#  wget -O $HAB_CACHE_SRC_PATH/kibana-oss-$KIBANA_VERSION.tar.gz $KIBANA_PKG_URL
+  rm -rf $HAB_CACHE_SRC_PATH/deprecated-security-parent
+  git clone https://github.com/opendistro-for-elasticsearch/deprecated-security-parent.git $HAB_CACHE_SRC_PATH/deprecated-security-parent
   rm -rf $HAB_CACHE_SRC_PATH/security-kibana-plugin
   git clone https://github.com/opendistro-for-elasticsearch/security-kibana-plugin.git $HAB_CACHE_SRC_PATH/security-kibana-plugin
+#  wget https://nodejs.org/dist/v10.15.2/node-v10.15.2-linux-x64.tar.xz
 }
 
 do_unpack() {
@@ -42,26 +48,54 @@ do_unpack() {
 }
 
 do_build() {
-  JAVA_HOME="$(pkg_path_for core/openjdk11)"
-  export JAVA_HOME
+  set -x
 
-  #Build dep packages and put them in a local maven repo
-  #attach
-  pushd /hab/cache/src/security-kibana-plugin>/dev/null || exit 1
-  git checkout tags/v$pkg_version
-  npm install
-  COPYPATH="build/kibana/security-kibana-plugin"
-  mkdir -p "$COPYPATH"
-  cp -a "index.js" "$COPYPATH"
-  cp -a "package.json" "$COPYPATH"
-  cp -a "lib" "$COPYPATH"
-  cp -a "node_modules" "$COPYPATH"
-  cp -a "public" "$COPYPATH"
-  mvn clean install -Prelease -Dgpg.skip
+#  rm -rf $HAB_CACHE_SRC_PATH/node
+#  mkdir $HAB_CACHE_SRC_PATH/node
+#  tar -xf node-v10.15.2-linux-x64.tar.xz -C $HAB_CACHE_SRC_PATH/node
 
+  # The Kibana build scripts need nvm, as well as the non-standard NVM_HOME var.
+  rm -rf /root/.nvm
+#  unset PREFIX
+#  npm config delete prefix
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash
+  export NVM_HOME=$HOME/.nvm
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-  #attach
+  export JAVA_HOME=$(hab pkg path core/openjdk11)
+  export MAVEN_HOME=$(hab pkg path core/maven)
+
+  # The 6.8 version of this plugin deps on the now deprecated security-parent plugin.
+  # This can be removed once we go to 7.X
+  pushd /hab/cache/src/deprecated-security-parent>/dev/null || exit 1
+  git checkout tags/v${pkg_version}
+  mvn compile -Dmaven.test.skip=true
+  mvn package -Dmaven.test.skip=true
+  mvn install -Dmaven.test.skip=true
   popd || exit 1
+
+  # Build the Kibana plugin itself. We're using opendistro 0.10.0.6, but 0.10.0.4 is as close as exists for kibana
+  pushd /hab/cache/src/security-kibana-plugin>/dev/null || exit 1
+  git checkout tags/v${pkg_version}
+
+  # Run the build script targeting Kibana version and opendistro version
+ # unset PREFIX
+ # npm config delete prefix
+#  attach
+  #nvm use --delete-prefix stable
+#  export PATH=/$HAB_CACHE_SRC_PATH/node/bin/:$PATH
+#  attach
+#  npm install
+#  attach
+
+  # This will fail, but sets up enough of an environment to not fail again
+  ./build.sh ${KIBANA_VERSION} ${opendistro_version} install || true
+
+  ./build.sh ${KIBANA_VERSION} ${opendistro_version} install
+
+  popd || exit 1      
 
 }
 
@@ -72,8 +106,8 @@ do_install() {
 
   cp -a $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64/* "${pkg_prefix}/"
 
-  unzip -q $HAB_CACHE_SRC_PATH/security-kibana-plugin/target/releases/opendistro_security_kibana_plugin-$pkg_version.zip -d $HAB_CACHE_SRC_PATH
-  mv $HAB_CACHE_SRC_PATH/kibana/security-kibana-plugin $pkg_prefix/plugins/
+  unzip -o -q $HAB_CACHE_SRC_PATH/security-kibana-plugin/target/releases/opendistro_security_kibana_plugin-$pkg_version.zip -d $HAB_CACHE_SRC_PATH
+  mv $HAB_CACHE_SRC_PATH/security-kibana-plugin $pkg_prefix/plugins/
 }
 
 do_strip() {
