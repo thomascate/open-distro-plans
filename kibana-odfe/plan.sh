@@ -34,12 +34,11 @@ pkg_binds_optional=(
 pkg_bin_dirs=(bin)
 
 do_download() {
-#  wget -O $HAB_CACHE_SRC_PATH/kibana-oss-$KIBANA_VERSION.tar.gz $KIBANA_PKG_URL
+  wget -O $HAB_CACHE_SRC_PATH/kibana-oss-$KIBANA_VERSION.tar.gz $KIBANA_PKG_URL
   rm -rf $HAB_CACHE_SRC_PATH/deprecated-security-parent
   git clone https://github.com/opendistro-for-elasticsearch/deprecated-security-parent.git $HAB_CACHE_SRC_PATH/deprecated-security-parent
   rm -rf $HAB_CACHE_SRC_PATH/security-kibana-plugin
   git clone https://github.com/opendistro-for-elasticsearch/security-kibana-plugin.git $HAB_CACHE_SRC_PATH/security-kibana-plugin
-#  wget https://nodejs.org/dist/v10.15.2/node-v10.15.2-linux-x64.tar.xz
 }
 
 do_unpack() {
@@ -80,22 +79,24 @@ do_build() {
   pushd /hab/cache/src/security-kibana-plugin>/dev/null || exit 1
   git checkout tags/v${pkg_version}
 
-  # Run the build script targeting Kibana version and opendistro version
- # unset PREFIX
- # npm config delete prefix
-#  attach
-  #nvm use --delete-prefix stable
-#  export PATH=/$HAB_CACHE_SRC_PATH/node/bin/:$PATH
-#  attach
-#  npm install
-#  attach
-
   # This will fail, but sets up enough of an environment to not fail again
   ./build.sh ${KIBANA_VERSION} ${opendistro_version} install || true
 
   ./build.sh ${KIBANA_VERSION} ${opendistro_version} install
 
-  popd || exit 1      
+  # This effectively installs the plugin in the source path
+  unzip -o -q $HAB_CACHE_SRC_PATH/security-kibana-plugin/target/releases/opendistro_security_kibana_plugin-$pkg_version.zip -d $HAB_CACHE_SRC_PATH
+  mv $HAB_CACHE_SRC_PATH/kibana/opendistro_security_kibana_plugin-$opendistro_version $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64/plugins/opendistro_security_kibana_plugin
+
+  # Now we can clean up some build artifacts to keep package size down
+
+#  rm -f $HAB_CACHE_SRC_PATH/kibana-oss-$KIBANA_VERSION.tar.gz
+#  rm -rf $HAB_CACHE_SRC_PATH/kibana
+#  rm -rf $HAB_CACHE_SRC_PATH/kibana-odfe-$pkg_version
+#  rm -rf $HAB_CACHE_SRC_PATH/deprecated-security-parent
+#  rm -rf $HAB_CACHE_SRC_PATH/security-kibana-plugin
+
+  popd || exit 1
 
 }
 
@@ -105,9 +106,6 @@ do_install() {
   install -vDm644 $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64/NOTICE.txt "${pkg_prefix}/NOTICE.txt"
 
   cp -a $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64/* "${pkg_prefix}/"
-
-  unzip -o -q $HAB_CACHE_SRC_PATH/security-kibana-plugin/target/releases/opendistro_security_kibana_plugin-$pkg_version.zip -d $HAB_CACHE_SRC_PATH
-  mv $HAB_CACHE_SRC_PATH/security-kibana-plugin $pkg_prefix/plugins/
 }
 
 do_strip() {
