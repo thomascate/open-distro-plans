@@ -45,7 +45,7 @@ pkg_exports=(
 pkg_exposes=(http-port transport-port)
 
 do_download() {
-  wget -O "${HAB_CACHE_SRC_PATH}/elasticsearch-oss-${ELASTICSEARCH_VERSION}.tar.gz" "{$ELASTICSEARCH_PKG_URL}"
+  wget -O "${HAB_CACHE_SRC_PATH}/elasticsearch-oss-${ELASTICSEARCH_VERSION}.tar.gz" "${ELASTICSEARCH_PKG_URL}"
   rm -rf ${HAB_CACHE_SRC_PATH}/security
   git clone https://github.com/opendistro-for-elasticsearch/security.git "${HAB_CACHE_SRC_PATH}/security"
 
