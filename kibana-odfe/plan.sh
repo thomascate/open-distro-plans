@@ -22,7 +22,6 @@ pkg_build_deps=(
   core/openssl
   core/zip
 )
-#pkg_deps=(core/node8/8.14.0 core/rsync) # Kibana is only supported if it runs on the version of node that ships with the release
 pkg_deps=(core/rsync) # Kibana is only supported if it runs on the version of node that ships with the release
 pkg_exports=(
   [port]=kibana_yaml.server.port
@@ -42,21 +41,17 @@ do_download() {
 }
 
 do_unpack() {
-
+  if [[ -d $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64 ]]
+  then
+    rm -rf $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64
+  fi
   tar -xzf $HAB_CACHE_SRC_PATH/kibana-oss-$KIBANA_VERSION.tar.gz -C $HAB_CACHE_SRC_PATH/
 }
 
 do_build() {
-  set -x
-
-#  rm -rf $HAB_CACHE_SRC_PATH/node
-#  mkdir $HAB_CACHE_SRC_PATH/node
-#  tar -xf node-v10.15.2-linux-x64.tar.xz -C $HAB_CACHE_SRC_PATH/node
 
   # The Kibana build scripts need nvm, as well as the non-standard NVM_HOME var.
   rm -rf /root/.nvm
-#  unset PREFIX
-#  npm config delete prefix
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${nvm_version}/install.sh | bash
   export NVM_HOME=$HOME/.nvm
   export NVM_DIR="$HOME/.nvm"
@@ -87,14 +82,6 @@ do_build() {
   # This effectively installs the plugin in the source path
   unzip -o -q $HAB_CACHE_SRC_PATH/security-kibana-plugin/target/releases/opendistro_security_kibana_plugin-$pkg_version.zip -d $HAB_CACHE_SRC_PATH
   mv $HAB_CACHE_SRC_PATH/kibana/opendistro_security_kibana_plugin-$opendistro_version $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64/plugins/opendistro_security_kibana_plugin
-
-  # Now we can clean up some build artifacts to keep package size down
-
-#  rm -f $HAB_CACHE_SRC_PATH/kibana-oss-$KIBANA_VERSION.tar.gz
-#  rm -rf $HAB_CACHE_SRC_PATH/kibana
-#  rm -rf $HAB_CACHE_SRC_PATH/kibana-odfe-$pkg_version
-#  rm -rf $HAB_CACHE_SRC_PATH/deprecated-security-parent
-#  rm -rf $HAB_CACHE_SRC_PATH/security-kibana-plugin
 
   popd || exit 1
 
