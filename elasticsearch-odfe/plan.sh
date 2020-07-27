@@ -18,6 +18,7 @@ pkg_build_deps=(
   core/zip
 )
 pkg_deps=( 
+  core/bash
   core/coreutils
   core/curl
   core/glibc
@@ -75,4 +76,6 @@ do_install() {
 
   mkdir -p $pkg_prefix/plugins/opendistro_security
   unzip $HAB_CACHE_SRC_PATH/security/target/releases/opendistro_security-$pkg_version.zip -d $pkg_prefix/plugins/opendistro_security
+
+  fix_interpreter "bin/*" core/bash bin/bash
 }
