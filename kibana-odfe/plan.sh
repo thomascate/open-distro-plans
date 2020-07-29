@@ -22,7 +22,10 @@ pkg_build_deps=(
   core/openssl
   core/zip
 )
-pkg_deps=(core/rsync)
+pkg_deps=(
+  core/bash
+  core/rsync
+)
 pkg_exports=(
   [port]=kibana_yaml.server.port
 )
@@ -74,6 +77,9 @@ do_build() {
   pushd /hab/cache/src/security-kibana-plugin>/dev/null || exit 1
   git checkout tags/v${pkg_version}
 
+  # Swap the hardcoded 6.8.1 version for 6.8.6
+  sed -i 's/6.8.1/6.8.6/g' package.json
+
   # This will fail, but sets up enough of an environment to not fail again
   ./build.sh ${KIBANA_VERSION} ${opendistro_version} install || true
 
@@ -93,6 +99,7 @@ do_install() {
   install -vDm644 $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64/NOTICE.txt "${pkg_prefix}/NOTICE.txt"
 
   cp -a $HAB_CACHE_SRC_PATH/kibana-$KIBANA_VERSION-linux-x86_64/* "${pkg_prefix}/"
+  fix_interpreter "${pkg_prefix}/bin/*" core/bash bin/sh
 }
 
 do_strip() {

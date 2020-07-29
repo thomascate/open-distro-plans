@@ -82,7 +82,7 @@ do_install() {
   # Delete unused binaries to save space
   rm "${pkg_prefix}/bin/"*.bat "${pkg_prefix}/bin/"*.exe
 
-  fix_interpreter "bin/*" core/bash bin/bash
+  fix_interpreter "${pkg_prefix}/bin/*" core/bash bin/bash
   mkdir -p "${pkg_prefix}/plugins/opendistro_security"
   unzip "${HAB_CACHE_SRC_PATH}/security/target/releases/opendistro_security-$pkg_version.zip" -d "${pkg_prefix}/plugins/opendistro_security"
   for plugin in ${ELASTICSEARCH_PLUGINS[@]}; do
